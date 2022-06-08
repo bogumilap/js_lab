@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="script.js" defer></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css">
+    </head>
+    <body style="padding: 30px;">
+        <div>
+            komendy:
+            <ul>
+                <li>dodaj &lt;kraj&gt;;</li>
+                <li>usuń &lt;kraj&gt;;</li>
+                <li>zmień zaszczepionych &lt;kraj&gt; &lt;liczba&gt;;</li>
+                <li>zmień przypadki &lt;kraj&gt; &lt;liczba&gt;;</li>
+                <li>zmień śmierci &lt;kraj&gt; &lt;liczba&gt;;</li>
+                <li>odczytaj &lt;kraj&gt;.</li>
+            </ul>
+            Kolejne polecenia należy rozdzielać średnikiem.
+        </div>
+
+        <form name="covid_data">
+            <textarea name="new_data" rows="10" cols="100"></textarea>
+        </form>
+        <p></p>
+        <button id="btn">Wykonaj</button>
+        <input type="checkbox" name="web_storage" id="ws"><label for="web_storage">Web storage</label>
+        <div id="display"></div>
+
+        <div id="mocha"> testy
+        </div>
+        <script src="https://unpkg.com/chai/chai.js"></script>
+        <script src="https://unpkg.com/mocha/mocha.js"></script>
+        <script class="mocha-init">
+          mocha.setup('bdd');
+          mocha.checkLeaks();
+          mocha.setup({ checkLeaks: false })
+        </script>
+        <script class="mocha-exec">
+          mocha.run();
+        </script>
+    </body>
+
+</html>
