@@ -1,0 +1,20 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+.container {
+    padding: 40px 10% 10% 10%;
+}
+
+div.fa-shopping-cart {
+    font-size: 30px;
+}
+
+img {
+    width: 100%;
+}
+
+
