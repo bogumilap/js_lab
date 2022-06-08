@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>gra</title>
+        <style>
+            * { padding: 0; margin: 0; } 
+            canvas { background: #eee; display: block; margin: 0 auto;} 
+            table { border: 1px solid black;}
+            td {padding : 5px; border: 1px solid black;}
+        </style>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="480" height="320"></canvas>
+        <table>
+            <tr>
+                <td>punkty</td>
+                <td id="points"></td>
+            </tr>
+            <tr>
+                <td>pozostały czas</td>
+                <td id="time"></td>
+            </tr>
+        </table>
+
+        <script>
+            class Brick {
+                constructor(stat) {
+                    this.x = 0;
+                    this.y = 0;
+                    this.status = stat;
+                    this.collided = 0;
+                };
+
+                set newStatus(val) {
+                    this.status = val;
+                };
+            };
+
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+            var ballRadius = 10;
+            var x = canvas.width/2;
+            var y = canvas.height-30;
+            var dx = 2;
+            var dy = -2;
+           
+            var rightPressed = false;
+            var leftPressed = false;
+            var upPressed = false;
+            var downPressed = false;
+
+            var brickRowCount = 10;
+            var brickColumnCount = 6;
+            var brickSide = 35;
+            var brickPadding = 10;
+            var brickOffsetTop = 30;
+            var brickOffsetLeft = 20;
+            var brickNumber = getRandomInt(60);
+            var brickDecrease = 50;
+
+            var points_cell = document.getElementById("points");
+            var score = 0;
+            points_cell.innerText = score;
+
+
+            var time = document.getElementById("time");
+            var time_left = 60;
+            time.innerText = time_left;
+            var inter = setInterval(() => {time_left--; time.innerText=time_left}, 1000);
+
+            var frame; 
+
+            var lives = 3;
+
+            var statusEvent = new CustomEvent("status");
+
+            var bricks = [];
+            for (var c=0; c<brickColumnCount; c++) {
+                bricks[c] = [];
+                for (var r=0; r<brickRowCount; r++) {
+                    let b = new Brick(21);
+                    bricks[c][r] = b;
+                }
+            }
+
+            for (var n=0; n<brickNumber; n++) {
+                addBricks();
+            }
+
+            function addBricks() {
+                var empty = 0;
+                var r = getRandomInt(brickColumnCount);
+                while (empty == 0) {
+                    for (var c=0; c<brickRowCount; c++) {
+                        if (bricks[r][c].status == 21) {
+                            empty++;
+                        }
+                    }
+                    if (empty == 0) {
+                        r = getRandomInt(brickColumnCount);
+                    }
+                }
+                
+                var col = getRandomInt(empty);
+                empty = 0;
+
+                for (var c=0; c<brickRowCount; c++) {
+                    if (bricks[r][c].status == 21) {
+                        empty++;
+                    }
+                    if (col == empty) {
+                        break;
+                    }
+                }
+                let b = new Brick(20);
+                bricks[r][col] = b;
+            }
+
+            document.addEventListener("keydown", keyDownHandler, false);
+            document.addEventListener("keyup", keyUpHandler, false);
+            document.addEventListener("mousemove", mouseMoveHandler, false);
+
+            function keyDownHandler(e) {
+                if (e.code  == "ArrowRight") {
+                    rightPressed = true;
+                }
+                else if (e.code == 'ArrowLeft') {
+                    leftPressed = true;
+                }
+                else if (e.code == "ArrowUp") {
+                    upPressed = true;
+                }
+                else if (e.code == "ArrowDown") {
+                    downPressed = true;
+                }
+            }
+
+            function keyUpHandler(e) {
+                if (e.code == 'ArrowRight') {
+                    rightPressed = false;
+                }
+                else if (e.code == 'ArrowLeft') {
+                    leftPressed = false;
+                }
+                else if (e.code == "ArrowUp") {
+                    upPressed = false;
+                }
+                else if (e.code == "ArrowDown") {
+                    downPressed = false;
+                }
+            }
+
+            function mouseMoveHandler(e) {
+                var relativeX = e.clientX - canvas.offsetLeft;
+                var relativeY = e.clientY - canvas.offsetTop;
+                if(relativeX > 0 && relativeX < canvas.width) {
+                    x = relativeX;
+                }
+                if (relativeY > 0 && relativeY < canvas.height) {
+                    y = relativeY;
+                }
+            }
+
+            function collisionDetection() {
+                for(var c=0; c<brickColumnCount; c++) {
+                    for(var r=0; r<brickRowCount; r++) {
+                        var b = bricks[c][r];
+                        if (b.status != 21) {
+                            if (x > b.x && x < b.x+brickSide && y > b.y && y < b.y+brickSide) {
+                                if (b.collided == 0) {
+                                    score += b.status;
+                                    points_cell.innerText = score;
+                                    b.collided = 1;
+                                }
+                            } else {
+                                b.collided = 0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            function drawBall() {
+                ctx.beginPath();
+                ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            function drawBricks() {
+                for(var c=0; c<brickColumnCount; c++) {
+                    for(var r=0; r<brickRowCount; r++) {
+                        if (bricks[c][r].status == -20) {
+                            bricks[c][r].status = 21;
+                            addBricks();
+                        }
+
+
+                        if(bricks[c][r].status != 21) {
+                            if (brickDecrease == 0) {
+                                bricks[c][r].status--;
+                            }
+                            var brickX = (r*(brickSide+brickPadding))+brickOffsetLeft;
+                            var brickY = (c*(brickSide+brickPadding))+brickOffsetTop;
+                            bricks[c][r].x = brickX;
+                            bricks[c][r].y = brickY;
+                            ctx.beginPath();
+                            ctx.rect(brickX, brickY, brickSide, brickSide);
+                            if (bricks[c][r].status < 0) {
+                                ctx.fillStyle = "#dd0f00";
+                            } else {
+                                ctx.fillStyle = "#12dd00";
+                            }
+                            ctx.fill();
+                            ctx.textAlign="center"; 
+                            ctx.textBaseline = "middle";
+                            ctx.fillStyle = "#000000";
+                            ctx.fillText(bricks[c][r].status, brickX + brickSide/2, brickY+(brickSide/2))
+                            ctx.closePath();
+                        }
+                    }
+                }
+            }
+
+            function drawLives() {
+                ctx.font = "16px Arial";
+                ctx.fillStyle = "#0095DD";
+                ctx.fillText("Lives: "+lives, canvas.width-65, 20);
+            }
+
+            function draw() {
+                if (time_left == 0) {
+                    clearInterval(inter);
+                    cancelAnimationFrame(frame);
+                    window.alert("czas minął");
+                    return;
+                }
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawBricks();
+                drawBall();
+                drawLives();
+                collisionDetection();
+                if (brickDecrease > 0) {
+                    brickDecrease--;
+                } else {
+                    brickDecrease = 50;
+                }
+                
+                if (x + dx < 0) {
+                    x = canvas.width;
+                }
+                if(x + dx > canvas.width) {
+                    x = 0;
+                }
+                
+                if(y + dy < 0) {
+                    y = canvas.height;
+                }
+                else if(y + dy > canvas.height) {
+                    y = 0;
+                }
+
+                if (rightPressed) {
+                    dx = 2;
+                    dy = 0;
+                    x += dx;
+                    if (x > canvas.width) {
+                        x = 0;
+                    }
+                } 
+                else if (leftPressed) {
+                    dx = -2;
+                    dy = 0;
+                    x += dx;
+                    if (x < 0) {
+                        x = canvas.width;
+                    }   
+                }                     
+                else if (upPressed) {
+                    dx = 0;
+                    dy = -2;
+                    y += dy;
+                    if (y < 0) {
+                        y = canvas.height;
+                    }
+                }
+                else if (downPressed) {
+                    dx = 0;
+                    dy = 2;
+                    y += dy;
+                    if (y > canvas.height) {
+                        y = 0;
+                    }
+                }
+                else {
+                    x += dx;
+                    y += dy;
+                }
+                frame = requestAnimationFrame(draw);
+            }
+
+            function getRandomInt(max) {
+                max = Math.floor(max);
+                return Math.floor(Math.random() * max);
+            }
+
+            draw();
+        </script>
+
+    </body>
+</html>

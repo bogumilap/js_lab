@@ -1,0 +1,104 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <h1 onclick="changePoints(-1)">h1</h1>
+        <h2 onclick="changePoints(-1)">h2</h2>
+        <h3 onclick="changePoints(-1)">h3</h3>
+        <h4 onclick="changePoints(-1)">h4</h4>
+        <h5 onclick="changePoints(-1)">h5</h5>
+        <h6 onclick="changePoints(-1)">h6</h6>
+        <p onclick="changePoints(1)">1</p>
+        <p onclick="changePoints(2)">2</p>
+        <p onclick="changePoints(3)">3</p>
+        <p onclick="changePoints(4)">4</p>
+        <p onclick="changePoints(3)">abc</p>
+        <p onclick="changePoints(6)">abcdef</p>
+        <p onclick="changePoints(9)">abcdefghi</p>
+        <p onclick="add()">+</p>
+        <p onclick="remove()">-</p>
+        <div>liczba punktów: <span id="points">0</span></div>
+
+        <script>
+            var points = 0;
+            let all_p = document.getElementsByTagName("p");
+            let h1 = document.getElementsByTagName("h1");
+            let h2 = document.getElementsByTagName("h2");
+            let h3 = document.getElementsByTagName("h3");
+            let h4 = document.getElementsByTagName("h4");
+            let h5 = document.getElementsByTagName("h5");
+            let h6 = document.getElementsByTagName("h6");
+            let h_number = [];
+            let end = false;
+            getAvailableHeaders();
+            let tmout = setTimeout(()=> {end = true; window.alert("czas minął.")}, 60000);
+            let nodes = [];
+
+            function getAvailableHeaders() {
+                if (h1.length > 0) h_number.push(h1);
+                if (h2.length > 0) h_number.push(h2);
+                if (h3.length > 0) h_number.push(h3);
+                if (h4.length > 0) h_number.push(h4);
+                if (h5.length > 0) h_number.push(h5);
+                if (h6.length > 0) h_number.push(h6);
+            }
+            
+            function changePoints(p) {  
+                if (! end) {              
+                    points += p;
+                    document.getElementById("points").innerText = points;
+                }
+            }
+
+            function add() {
+                if (! end) {
+                    getAvailableHeaders();
+                    let ind = getRandomInt(0, h_number.length);  // wybor tagu headera
+                    let h_ind = getRandomInt(0, h_number[ind].length);   // wybor headera o wybranym tagu
+
+                    let span = document.createElement("span");
+                    let text = all_p[getRandomInt(0, all_p.length)].innerText;
+                    let node = document.createTextNode(text);  // wstawienie tekstu
+                    if (text == "+") {
+                        span.setAttribute("onclick", "add()");
+                    } else {
+                        if (text == "-") {
+                            span.setAttribute("onclick", "remove()");
+                        } else {
+                            let arg = 1;
+                            if (text.valueOf() == 1 || text.valueOf() == 2 || text.valueOf() == 3 || text.valueOf() == 4) {
+                                arg = eval(text) + 1;
+                            } else {
+                                arg = text.length + 1;
+                            }
+                            span.setAttribute("onclick", "changePoints(" + arg + ")");
+                        }
+                    }
+                    span.appendChild(node);
+                    h_number[ind][h_ind].appendChild(span);
+                    nodes.push(span);
+                    let a = window.setTimeout(() => h_number[ind][h_ind].removeChild(span), 5000);
+                }
+            }
+
+            function remove() {
+                if (! end) {
+                    let ind = getRandomInt(0, nodes.length);
+                    nodes[ind].parentNode.removeChild(nodes[ind]);
+                    if (ind == nodes.length - 1) {
+                        nodes.pop();
+                    } else {
+                        nodes = nodes.slice(0, ind).concat(nodes.slice(ind+1, nodes.length));
+                    }
+                }
+            }
+
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+
+        </script>
+    </body>
+</html>

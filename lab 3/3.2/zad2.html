@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <form>
+            <input type="number" value="10" id="licznik">
+            <input type="button" value="start" onclick="start()">
+        </form>
+
+        <div id="spans">
+            <span>0</span> 
+            <span>0</span>
+            <span>0</span>
+            <span>0</span>
+            <span>0</span>
+            <span>0</span>
+            <span>0</span>
+            <span>0</span>
+            <span>0</span> 
+            <span>0</span>
+        </div>
+
+        <script>
+            let num = document.getElementById("licznik").value;
+            let val = num;
+            let parent = document.getElementById("spans");
+            let spans = document.getElementsByTagName("span");
+            var tmout;
+
+            function start() {
+                tmout = window.setTimeout(decrement, 1000);
+            }
+
+            function decrement() {
+                for (let i=0; i<spans.length; i++) {
+                    const para = document.createElement("span");
+                    const node = document.createTextNode(num);
+                    para.appendChild(node);
+                    parent.replaceChild(para, spans[i]);
+                }
+
+                if (num > 0) {
+                    num--;
+                }
+
+                if (num == 0) {
+                    document.getElementById("licznik").value = 0;
+                }
+
+                if (document.getElementById("licznik").value != val && document.getElementById("licznik").value > 0) {
+                    num = document.getElementById("licznik").value;
+                    val = num;
+                    reload();
+                } else {
+                    tmout = window.setTimeout(decrement, 1000);
+                }
+            }
+
+            function reload() {
+                window.clearTimeout(tmout);
+                start();
+            }
+        </script>
+    </body>
+</html>
